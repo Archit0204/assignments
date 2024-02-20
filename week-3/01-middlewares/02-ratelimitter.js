@@ -12,6 +12,25 @@ const app = express();
 // clears every one second
 
 let numberOfRequestsForUser = {};
+
+app.use((req, res, next) => {
+  let userId = req.headers['user-id'];
+
+  if (numberOfRequestsForUser[userId]) {
+      numberOfRequestsForUser[userId] += 1;
+      if (numberOfRequestsForUser[userId] > 5) {
+        return res.status(404).send("Limit Reached");
+      }
+      else {
+        next();
+      }
+  }
+  else {
+      numberOfRequestsForUser[userId] = 1;
+      next();
+  }
+})
+
 setInterval(() => {
     numberOfRequestsForUser = {};
 }, 1000)
